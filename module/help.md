@@ -1,7 +1,7 @@
-#Makefile
-##internet
+# Makefile
+## internet
 http://blog.csdn.net/ruglcc/article/details/7814546/
-##rules of makefile
+## rules of makefile
 target...: prerequisites ...
 		command
 		...
@@ -10,7 +10,7 @@ target...: prerequisites ...
 target is the target file, which can be Object File, binary file even a lable.
 prerequisites is the request file, which can be used to generate the target file.
 command is what "make" should do(a lot of shell commands).
-##an example
+## an example
 If there are 3 headfiles and 8 sourcefiles, our Makefile will be like that.
 ```makefile
 edit: main.o kbd.o command.o display.0 /
@@ -38,7 +38,7 @@ clean:
 	insert.o search.o files.o utils.o
 ```	
 
-##variable
+## variable
 We can use
 ```makefile
 objects = main.o ldb.o command.o display.o insert.o search.o files.o utils.o
@@ -51,7 +51,7 @@ edit: $(objects)
 	cc -o edit $(objects)
 ```
 
-##no need for too many details
+## no need for too many details
 "Make" can know our c files via o files and get the right cc-c.Therefore 
 ```makefile
 main.o: defs.h
@@ -61,32 +61,39 @@ equals to
 main.o: main.c defs.h
 	cc -c main.c
 ```
-##.PHONY
+## .PHONY
 It means "clean" is a fake target file.
 ```makefile
 .PHONY: clean
 clean:
 	rm edit $(objects)
 ```
-##"-"
+## "-"
 ```makefile
 .PHONY: clean
 clean:
 	-rm edit $(objects)
 ```
 "-" means that there may be something wrong while removing files, but leave it alone, go to the next step.
-##include
+## include
 ```makefile
 include<filename>
 ```
 where filename may be a shell file in this system//include path,etc
-##MAKEFILES
+## MAKEFILES
 Please don't use this environment variable, because it may cause some weird things.
-##Search file
+## Search file
+### VPATH
 ```makefile
 VPATH=src:../headers
 ```
 If "make" can't find headers, it will search it from dirs in VPATH.
 
 They are src and ../headers here, which is seprated via ':'.
+### vpath
+```makefile
+vpath <pattern><directories>
+vpath<pattern>
+vpath
+```
 
