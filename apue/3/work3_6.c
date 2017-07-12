@@ -3,7 +3,7 @@
 
 int main() {
 	int fd;
-	if ((fd = openat(AT_FDCWD,"test.out",O_RDWR,O_APPEND | O_CREAT)) < 0) 
+	if ((fd = open("test.out",O_WRONLY|O_APPEND)) < 0) 
 		err_sys("Open error");
 	if (write(fd,"abcdefg",7) != 7)
 		err_sys("Write error");
