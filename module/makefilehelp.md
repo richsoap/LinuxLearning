@@ -68,6 +68,21 @@ It means "clean" is a fake target file.
 clean:
 	rm edit $(objects)
 ```
+Besides, "make clean" is the only way to run "clean".
+.PHONY also can be the first file.
+```makefile
+all:pro1 pro2 pro3
+.PHONY:all
+
+pro1:...
+	...
+pro2:...
+	...
+pro3:...
+	...
+
+```
+If we "make", we will get pro1, pro2 and pro3, not only pro1 or something else.
 ## "-"
 ```makefile
 .PHONY: clean
@@ -92,8 +107,31 @@ If "make" can't find headers, it will search it from dirs in VPATH.
 They are src and ../headers here, which is seprated via ':'.
 ### vpath
 ```makefile
-vpath <pattern><directories>
-vpath<pattern>
-vpath
+vpath <pattern> <directories> //Search <directories> for files matching <pattern> 
+vpath<pattern> // clean search directories for files matching <pattern>
+vpath // clean all directories
 ```
+example
+```makefile
+vpath %.c foo:blish
+```
+It means search c files in foo and blish in order.
+## multiple targets "$@"
+```makefile
+bigoutput littleoutput:text.g
+	generate text.g -$(subst output ,,$@) > $@
+```
+equals to
+```make file
+bigoutput:text.g
+	generate text.g -big > bigoutput
+littleoutput:text.g
+	generate text.g -little > littleoutput
+```
+where "$" in "-$(subst output,,$@)" means run a Makefile function named "subst" the following is parameters.(subst equals subString in Java)
+
+"$@" stands for a set of targets and pick them out one by one.
+
+
+
 

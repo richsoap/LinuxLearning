@@ -1,0 +1,1 @@
+cmd_/home/richsoap/workspace/LinuxLearning/module/hello.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/richsoap/workspace/LinuxLearning/module/hello.ko /home/richsoap/workspace/LinuxLearning/module/hello.o /home/richsoap/workspace/LinuxLearning/module/hello.mod.o ;  true
