@@ -106,4 +106,11 @@ void  cdev_init(struct cdev *cdev, struct file_operations *fops);
 int cdev_add(struct cdev *cdev, dev_t num, unsigned int count);
 ###  delete cdev
 void cdev_del(struct cdev *dev);
+## memory use
+<linux/slab.h>
+###void kmalloc(size_t size,int flags);
+This function is used to get a block of memory in size. Return a point to the area, null when error.
 
+"flags" is used to describe how to get memory. "GFP_KERNEL".
+###void kfree(void *ptr);
+It is used to free memory, ptr is the point.

@@ -16,6 +16,6 @@ clean:
 
 else
 
-obj-m :=hello.o
+obj-m :=scull.o 
 
 endif

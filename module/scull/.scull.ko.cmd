@@ -1,0 +1,1 @@
+cmd_/home/richsoap/workspace/LinuxLearning/module/scull/scull.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/richsoap/workspace/LinuxLearning/module/scull/scull.ko /home/richsoap/workspace/LinuxLearning/module/scull/scull.o /home/richsoap/workspace/LinuxLearning/module/scull/scull.mod.o ;  true
