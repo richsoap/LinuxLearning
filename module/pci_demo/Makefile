@@ -1,6 +1,7 @@
 ifeq ($(KERNELRELEASE),)
 
-KDIR :=	~/workspace/environment/linux/linux-4.9.6/
+#KDIR := /lib/modules/$(shell uname -r)/build
+KDIR := ~/workspace/environment/linux/linux-4.9.6/
 PWD := $(shell pwd)
 
 modules:
@@ -16,6 +17,6 @@ clean:
 
 else
 
-obj-m :=scull.o 
+obj-m :=pci_demo.o
 
 endif
