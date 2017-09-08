@@ -11,42 +11,23 @@
 #include <linux/device.h>
 #include <asm/io.h>
 
-#define CHARDEV_NAME "my_pci"
+#define CHARDEV_NAME "pic_chardev"
 #define MAXLENGTH 4096
-
-#define DMA_SOURCE_ADDR 0x80
-#define DMA_DESTINATION_ADDR 0x88
-#define DMA_COUNT 0x90
-#define DMA_COMMAND 0x98
-
-#define DMA_START 0x01
-#define DMA_DIR 0x02
-#define DMA_INTER 0x04
-
-
-typedef struct registers {
-	int source;
-	int destination;
-	int count;
-	int command;
-}
 
 typedef struct pci_demo_dev {
 	char devname[24];
+	void *data;
 	int dev_num;
+	int length;
+	struct cdev chardev;
 	struct class *dev_class;
 	struct device *dev;
 	struct pci_dev *pdev;
-	struct cdev chardev;
-	int majorNuber;
-	struct dma_addr_t addr;
-	struct dma_chan *dma_chan;
-	void* buffer;
-	struct registers;
-	int irq;
 };
 
 static struct pci_device_id pcie_tbl[] = {
+	{0x104c,0x823f,PCI_ANY_ID,PCI_ANY_ID,0,0,0},
+
 	{0x1234,0x11e8,PCI_ANY_ID,PCI_ANY_ID,0,0,0},
 	{0,}
 };

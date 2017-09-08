@@ -1,5 +1,4 @@
 #include "pci_demo.h"
-#include <linux/completion.h>
 MODULE_LICENSE("Dual BSD/GPL");
 
 static int cleanflag = 0;
