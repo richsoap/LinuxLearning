@@ -940,6 +940,21 @@ deps_/home/richsoap/workspace/LinuxLearning/module/pci_dma/pci_demo.o := \
   arch/x86/include/asm/dma.h \
     $(wildcard include/config/isa/dma/api.h) \
     $(wildcard include/config/generic/isa/dma.h) \
+  arch/x86/include/asm/uaccess.h \
+    $(wildcard include/config/x86/intel/usercopy.h) \
+  include/linux/kasan-checks.h \
+  arch/x86/include/asm/smap.h \
+    $(wildcard include/config/x86/smap.h) \
+  arch/x86/include/asm/uaccess_64.h \
+  include/linux/dmaengine.h \
+    $(wildcard include/config/async/tx/enable/channel/switch.h) \
+    $(wildcard include/config/dma/engine.h) \
+    $(wildcard include/config/rapidio/dma/engine.h) \
+    $(wildcard include/config/async/tx/dma.h) \
+  include/linux/uio.h \
+  include/uapi/linux/uio.h \
+  arch/x86/include/asm/delay.h \
+  include/asm-generic/delay.h \
 
 /home/richsoap/workspace/LinuxLearning/module/pci_dma/pci_demo.o: $(deps_/home/richsoap/workspace/LinuxLearning/module/pci_dma/pci_demo.o)
 

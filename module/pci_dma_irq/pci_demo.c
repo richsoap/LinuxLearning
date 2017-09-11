@@ -29,7 +29,6 @@ int dev_open(struct inode *inode,struct file*filp) {
 	//for chardev
 	int i;
 	struct pci_demo_dev* mydev;
-	void * tempvoid;
 	printk(KERN_ERR "open file\n");
 	mydev = container_of(inode->i_cdev,struct pci_demo_dev, chardev);
 	filp->private_data = mydev;
@@ -40,25 +39,25 @@ int dev_open(struct inode *inode,struct file*filp) {
 		result = request_irq(mypci_dev->irq,interfunc,IRQF_SHARED,"my_pci",mypci_dev->dev);
 		printk(KERN_ERR "irq result is %d\n",result);
 
-	if(result != 0) {
-		disable_irq(mypci_dev->irq);
-		return result;
-	}
+		if(result != 0) {
+			disable_irq(mypci_dev->irq);
+			return result;
+		}
 	//for dma
-	for(i = 0;i < MAX_DMA_CHANNELS;i ++) {
-		result = request_dma(i,"my_dma");
-		if(result == 0) {
-			mypci_dev->dma_chan = i;
-			break;
+		for(i = 0;i < MAX_DMA_CHANNELS;i ++) {
+			result = request_dma(i,"my_dma");
+			if(result == 0) {
+				mypci_dev->dma_chan = i;
+				break;
+			}
 		}
-	}
-	printk(KERN_ERR "dma result is %d\n",result);
-	if(result) {
-		free_irq(mypci_dev->irq,mypci_dev->dev);
-		return result;
-	}
+		printk(KERN_ERR "dma result is %d\n",result);
+		if(result) {
+			free_irq(mypci_dev->irq,mypci_dev->dev);
+			return result;
+		}
 	
-		}
+	}
 
 	printk(KERN_ERR "open successfully\n");
 	using_count ++;
@@ -68,7 +67,7 @@ int dev_open(struct inode *inode,struct file*filp) {
 int dev_release(struct inode *inode,struct file*file) {
 	using_count --;
 	if(using_count == 0) {
-		free_irq(7,mypci_dev->dev);
+		free_irq(mypci_dev->irq,mypci_dev->dev);
 		disable_irq(mypci_dev->irq);
 		free_dma(mypci_dev->dma_chan);
 	
@@ -77,15 +76,16 @@ int dev_release(struct inode *inode,struct file*file) {
 }
 
 int dma_trans(int write,size_t count,int offset) {
+	int i;
+	u8 inter;
 	dma_addr_t bus_addr;
-	unsigned long flag;
 	printk(KERN_ERR "trans direction is %d\n",write);
 	mypci_dev->dma_dir =(write?PCI_DMA_TODEVICE:PCI_DMA_FROMDEVICE);
 	mypci_dev->dma_size = count;
 	bus_addr = pci_map_single(mypci_dev->pdev,mypci_dev->buffer,count,mypci_dev->dma_dir);
 	mypci_dev->dma_addr = bus_addr;
 	printk(KERN_ERR "addr has been done\n");
-/*
+
 writeb(0,DMA_COMMAND+mypci_dev->base);
 	writew(count,DMA_COUNT+mypci_dev->base);
 	if(write) {
@@ -98,8 +98,17 @@ writeb(0,DMA_COMMAND+mypci_dev->base);
 		writel(bus_addr,DMA_DESTINATION_ADDR+mypci_dev->base);
 		writeb(0x07,DMA_COMMAND+mypci_dev->base);
 	}
-	*/
-
+	for(i = 0;i < 1000;i ++) {
+		inter = readb(mypci_dev->base + 0x100);	
+		if(inter & 0xffff) {
+			complete(&Comp);
+pci_unmap_single(mypci_dev->pdev,mypci_dev->dma_addr,mypci_dev->dma_size,mypci_dev->dma_dir);
+			return count;
+		}
+	}
+pci_unmap_single(mypci_dev->pdev,mypci_dev->dma_addr,mypci_dev->dma_size,mypci_dev->dma_dir);
+	complete(&Comp);
+	return 0;
 	/*
 	flag=claim_dma_lock();
 	disable_dma(mypci_dev->dma_chan);
@@ -114,37 +123,38 @@ writeb(0,DMA_COMMAND+mypci_dev->base);
 	release_dma_lock(flag);
 	printk(KERN_ERR "after reelease\n");
 */
-	return 0;
 
 }
 
 
 ssize_t dev_read(struct file*file,char *buf,size_t count,loff_t *ppos) {
+	int result;
 	printk(KERN_ERR "pci_demo read\n");
 	if(*ppos + count > 4096) {
 		count = 4096 - *ppos;
 	}
 	init_completion(&Comp);
-	dma_trans(0,count,*ppos);
+	result = dma_trans(0,count,*ppos);
 	printk(KERN_ERR "return to read\n");
 	wait_for_completion(&Comp);
 	copy_to_user(buf,mypci_dev->buffer,count);
 	printk(KERN_ERR "read done\n");
-	return count;
+	return result;
 }
 
 ssize_t dev_write(struct file *file, const char*buf,size_t count,loff_t *ppos) {
+	int result;
 	printk(KERN_ERR "pci_demo write\n");
 	if(*ppos + count > 4096) {
 		count = 4096 - *ppos;
 	}
 	copy_from_user(mypci_dev->buffer,buf,count);
 	init_completion(&Comp);
-	dma_trans(1,count,*ppos);
+	result = dma_trans(1,count,*ppos);
 	printk(KERN_ERR "return to write\n");
 	wait_for_completion(&Comp);
 	printk(KERN_ERR "write done\n");
-	return count;
+	return result;
 }
 
 static struct file_operations fops = {
