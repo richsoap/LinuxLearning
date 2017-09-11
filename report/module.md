@@ -56,11 +56,22 @@ static struct pci_device_id my_pci_id {
   static inline int pci_read_config_dword(const struct pci_dev *dev,int where, u32 *val)//用于从配置空间读取信息
   static __always_inline void *kmalloc(size_t size, gfp_t flags)//用于向内核申请一块大小为size的内存
   int alloc_chrdev_region(dev_t *dev, unsigned baseminor, unsigned count, const char *name)
-  //用于动态注册一个设备
+  //用于动态注册一个子设备
   class_create(owner, name)//这是一个用于创建class的宏
   void cdev_init(struct vdev*cdev, const struct file_operations *fops)
   //用于初始化字符设备
   int cdev_add(struct cdev*p, dev_t dev, usnsigned count)//用于添加一个字符设备
-
-
 ```
+
+### remove
+在remove函数中，除了将设备删除并注销子设备外，最主要的，就是调用了dev_clean函数。该函数的作用为依据一个名为cleanflag的int类型全局变量的数值，依次释放资源。相对应地，这需要在probe函数中，每申请一次资源，就让cleanflag增加1。个人更喜欢这种这种调用函数释放资源的方式，而不是使用goto语句，因为goto语句需要用不同的标识去定位，而这种调用函数的释放方式就只用记住在申请完资源后让cleanflag自加，再在dev_clean函数中增加一行释放资源的语句即可。
+
+## IRQ
+IRQ主要用于PCI设备的中断相关的操作，但中断号与设备的物理安装有关，这就涉及到IRQ号的探测。
+### 探测方法
+此处使用的是将反馈函数遍历地绑定到可能的IRQ中断号上，再操作寄存器，让设备发出中断。若我们绑定了正确的中断号，则相应的反馈函数就会被调用，我们也就知道相应的中断号了。
+#### 反馈函数
+反馈函数很简单，具体内容就是在被调用的时候改变一个全局变量，从而说明该中断号为正确的。
+
+
+
